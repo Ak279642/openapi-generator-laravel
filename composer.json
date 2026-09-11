@@ -1,0 +1,44 @@
+{
+  "name": "ak279642/openapi-generator-laravel",
+  "description": "Laravel package for automatic OpenAPI documentation generation from routes, controllers, Form Requests, and API resources, with Swagger UI and Scalar support.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^10.0|^11.0|^12.0",
+    "illuminate/routing": "^10.0|^11.0|^12.0",
+    "illuminate/http": "^10.0|^11.0|^12.0",
+    "laravel/framework": "^10.0|^11.0|^12.0",
+    "nikic/php-parser": "^5.0",
+    "symfony/yaml": "^6.0|^7.0|^8.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^8.0|^9.0|^10.0",
+    "phpunit/phpunit": "^10.0|^11.0|^12.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "OpeapiGeneratorLaravel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "OpeapiGeneratorLaravel\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "OpeapiGeneratorLaravel\\OpenApiGeneratorServiceProvider"
+      ]
+    }
+  },
+  "authors": [
+    {
+      "name": "Avinash Kumar",
+      "email": "ak279642@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
