@@ -17,6 +17,7 @@ class ControllerResponseAnalyzer
         'found' => false,
         'resourceClass' => null,
         'isCollection' => false,
+        'responseSchema' => null,
     ];
     private array $variables = [];
     private array $methodCache = [];
@@ -259,6 +260,7 @@ class ControllerResponseAnalyzer
                     'found' => false,
                     'resourceClass' => null,
                     'isCollection' => false,
+                    'responseSchema' => null,
                 ];
 
                 $this->analyzeExpression(
@@ -267,12 +269,7 @@ class ControllerResponseAnalyzer
 
                 if ($this->result['found']) {
 
-                    $this->variables[$expr->var->name] = [
-                        'resourceClass' =>
-                        $this->result['resourceClass'],
-                        'isCollection' =>
-                        $this->result['isCollection'],
-                    ];
+                    $this->variables[$expr->var->name] = $this->result;
                 }
 
                 $this->result = $old;
@@ -306,15 +303,15 @@ class ControllerResponseAnalyzer
         }
 
         if ($expr instanceof Node\Expr\Array_) {
-            foreach ($expr->items as $item) {
-                if ($item !== null && $item->value !== null) {
-                    $this->analyzeExpression($item->value);
-
-                    if ($this->result['found']) {
-                        return;
-                    }
-                }
-            }
+            $this->result = [
+                'found' => true,
+                'resourceClass' => null,
+                'isCollection' => false,
+                'status' => 200,
+                'responseType' => 'array',
+                'responseSchema' => (new ArrayResponseSchemaInferrer())->infer($expr),
+                'headers' => [],
+            ];
 
             return;
         }
@@ -604,6 +601,7 @@ class ControllerResponseAnalyzer
             'isCollection' => $isCollection,
             'status' => 200,
             'responseType' => 'resource',
+            'responseSchema' => null,
             'headers' => [],
         ];
     }
@@ -654,12 +652,7 @@ class ControllerResponseAnalyzer
             return;
         }
 
-        $resource = $this->variables[$expr->name];
-
-        $this->setResult(
-            $resource['resourceClass'],
-            $resource['isCollection']
-        );
+        $this->result = $this->variables[$expr->name];
     }
     private function isResourceCollection(string $class): bool
     {
@@ -749,6 +742,7 @@ class ControllerResponseAnalyzer
             'isCollection' => false,
             'status' => 200,
             'responseType' => 'resource',
+            'responseSchema' => null,
             'headers' => [],
         ];
     }

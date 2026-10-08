@@ -14,6 +14,26 @@ return [
 
     'scan' => [
         'route_prefixes' => ['api/'],
+
+        // Routes can also be included by middleware even when their URI does
+        // not start with "api/" (for example a provider-loaded "v1/*" group).
+        'include_middleware' => ['api'],
+
+        // Discover routes/api.php plus nested files such as routes/api/v1.php.
+        // Files already loaded by Laravel/your RouteServiceProvider are skipped.
+        'discover_route_files' => true,
+        'route_file_middleware' => ['api'],
+        'route_file_prefix' => 'api',
+
+        // false: routes/api/v1.php is loaded under "api" and the file defines
+        // its own v1 prefix. true: the path becomes "api/v1" automatically.
+        'route_file_prefix_from_path' => false,
+
+        // Additional route files may be strings or arrays with path/prefix/middleware.
+        // Example:
+        // ['path' => 'routes/internal.php', 'prefix' => 'internal', 'middleware' => ['api']]
+        'route_files' => [],
+
         'include_named_routes' => [],
         'exclude_paths' => [
             'telescope/*', 'docs/*', 'sanctum/*', 'up', 'ignition/*',

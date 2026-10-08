@@ -56,7 +56,8 @@ class OpenApiWriter
             }
 
             $methodInfo = $controller['methods'][$methodName];
-            $requestInfo = $this->getRequestInfo($methodInfo['requestClass'] ?? null, $requests);
+            $requestInfo = $this->getRequestInfo($methodInfo['requestClass'] ?? null, $requests)
+                ?? ($methodInfo['inlineRequest'] ?? null);
 
             if (!isset($paths[$path])) {
                 $paths[$path] = [];
@@ -193,7 +194,25 @@ class OpenApiWriter
         $resourceClass = $methodInfo['resourceClass'] ?? null;
         $isCollection = $methodInfo['isCollection'] ?? false;
 
+        $responseSchema = $methodInfo['responseSchema'] ?? null;
+
         if (
+            !empty($methodInfo['found']) &&
+            ($methodInfo['responseType'] ?? null) === 'array' &&
+            is_array($responseSchema) &&
+            $responseSchema !== []
+        ) {
+            $status = (string) ($methodInfo['responseStatus'] ?? 200);
+
+            $responses[$status] = [
+                'description' => $status === '200' ? 'Success' : 'Response',
+                'content' => [
+                    'application/json' => [
+                        'schema' => $responseSchema,
+                    ],
+                ],
+            ];
+        } elseif (
             !empty($methodInfo['found']) &&
             is_string($resourceClass) &&
             $this->registry->has($resourceClass)

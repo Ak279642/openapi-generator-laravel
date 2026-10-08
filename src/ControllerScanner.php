@@ -13,10 +13,12 @@ class ControllerScanner
 {
     private array $controllerCache = [];
     private ControllerResponseAnalyzer $responseAnalyzer;
+    private InlineValidationScanner $inlineValidationScanner;
 
     public function __construct()
     {
         $this->responseAnalyzer = new ControllerResponseAnalyzer();
+        $this->inlineValidationScanner = new InlineValidationScanner();
     }
 
     public function scan(array $routes): array
@@ -88,6 +90,9 @@ class ControllerScanner
             }
 
             $responseInfo = $this->responseAnalyzer->analyze($method);
+            $inlineRequest = $requestClass === null
+                ? $this->inlineValidationScanner->scan($method)
+                : null;
 
             $methods[$method->getName()] = [
                 'methodName'       => $method->getName(),
@@ -104,12 +109,14 @@ class ControllerScanner
                 'responseStatus'   => $responseInfo['status'] ?? 200,
                 'responseHeaders'  => $responseInfo['headers'] ?? [],
                 'responseType'     => $responseInfo['responseType'] ?? 'resource',
+                'responseSchema'   => $responseInfo['responseSchema'] ?? null,
+                'inlineRequest'    => $inlineRequest,
 
                 'httpMethods'      => [],
                 'queryParameters'  => [],
                 'pathParameters'   => [],
                 'bodyParameters'   => [],
-                'validationErrors' => $requestClass !== null,
+                'validationErrors' => $requestClass !== null || $inlineRequest !== null,
             ];
         }
 
